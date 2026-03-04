@@ -900,6 +900,119 @@
             background: rgba(124, 58, 237, 0.4);
             border-radius: 4px;
         }
+
+        /* ─── MOBILE RESPONSIVENESS ───────────────────────────── */
+        @media (max-width: 768px) {
+            .page-layout {
+                padding-top: 60px;
+                padding-bottom: 90px;
+            }
+
+            .navbar {
+                padding: 0 15px;
+                height: 60px;
+            }
+
+            .navbar__logo {
+                font-size: 1rem;
+            }
+
+            .hero {
+                padding: 10px 10px 5px;
+            }
+
+            .hero__title {
+                font-size: 1.8rem;
+            }
+
+            .hero__sub {
+                font-size: 0.75rem;
+                margin-bottom: 5px;
+            }
+
+            .hero__cta-row {
+                flex-wrap: wrap;
+            }
+
+            .hero__stats {
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+
+            .bots-row {
+                justify-content: flex-start;
+                overflow-x: auto;
+                padding-bottom: 10px;
+                /* Hide scrollbar for cleaner look */
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+
+            .bots-row::-webkit-scrollbar {
+                display: none;
+            }
+
+            .palette-panel {
+                height: 90px;
+                padding: 8px 10px 10px;
+            }
+
+            .palette-row {
+                gap: 12px;
+                overflow-x: auto;
+                width: 100%;
+                justify-content: center;
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+
+            .palette-row::-webkit-scrollbar {
+                display: none;
+            }
+
+            .bot-pedestal {
+                width: 75px;
+                padding: 8px 6px 6px;
+            }
+
+            .bot-img-wrap {
+                width: 65px;
+                height: 80px;
+            }
+
+            .pot-vessel {
+                width: 45px;
+                height: 55px;
+            }
+
+            .toast,
+            .score-badge {
+                top: 70px;
+            }
+
+            .score-badge {
+                padding: 8px 12px;
+                min-width: 80px;
+                right: 10px;
+            }
+
+            .score-val {
+                font-size: 1.2rem;
+            }
+
+            .score-lbl {
+                font-size: 0.5rem;
+            }
+
+            .divider {
+                height: 35px;
+            }
+
+            .palette-reset-btn .icon-ring {
+                width: 32px;
+                height: 32px;
+            }
+        }
     </style>
 </head>
 
@@ -1218,15 +1331,40 @@
         /* ── Draw one spray layer onto ctx ────────────────────── */
         function drawSprayLayer(ctx, w, h, color, seed, alpha) {
             const rand = seededRand(seed)
-            ctx.globalAlpha = alpha
+
+            // Pick a random center point within the bot body
+            const cx = w * (0.2 + rand() * 0.6)
+            const cy = h * (0.2 + rand() * 0.6)
+            const spreadX = w * (0.35 + rand() * 0.3)   // horizontal spread radius
+            const spreadY = h * (0.25 + rand() * 0.25)  // vertical spread radius
+            const dotCount = 55 + Math.floor(rand() * 30) // 55-85 droplets per spray
+
             ctx.fillStyle = color
-            for (let i = 0; i < 10; i++) {
+
+            for (let i = 0; i < dotCount; i++) {
+                // Gaussian-style radial scatter using Box-Muller transform
+                const u = rand() || 0.0001
+                const v = rand()
+                const gx = Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v)
+                const gy = Math.sqrt(-2 * Math.log(u)) * Math.sin(2 * Math.PI * v)
+
+                const px = cx + gx * spreadX * 0.45
+                const py = cy + gy * spreadY * 0.45
+
+                // Clamp inside canvas
+                if (px < 0 || px > w || py < 0 || py > h) continue
+
+                // Dot size: most tiny, some medium
+                const r = rand() < 0.15
+                    ? rand() * 4 + 3      // a few medium drops (3-7px)
+                    : rand() * 2.5 + 0.8  // many small drops (0.8-3.3px)
+
+                // Opacity: closer to centre = more opaque
+                const dist = Math.sqrt((gx * gx) + (gy * gy))
+                ctx.globalAlpha = alpha * Math.max(0.08, 1 - dist * 0.28)
+
                 ctx.beginPath()
-                const rx = rand() * w * 0.4 + w * 0.08
-                const ry = rand() * h * 0.25 + h * 0.08
-                const cx = w * (0.1 + rand() * 0.8)
-                const cy = h * (0.1 + rand() * 0.8)
-                ctx.ellipse(cx, cy, rx, ry, rand() * Math.PI, 0, Math.PI * 2)
+                ctx.arc(px, py, r, 0, Math.PI * 2)
                 ctx.fill()
             }
         }
