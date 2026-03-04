@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Happy Holi - AI Celebration</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: radial-gradient(circle at center, #0f2027, #203a43, #2c5364);
+            color: white;
+            text-align: center;
+            overflow: hidden;
+            /* Use sprayer.png as mouse cursor */
+            cursor: url('sprayer.png') 4 60, crosshair;
+        }
+
+        /* Title */
+        h1 {
+            margin-top: 20px;
+            font-size: 50px;
+            letter-spacing: 3px;
+        }
+
+        /* AI Bots Area */
+        .ai-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 60px;
+            align-items: flex-end;
+        }
+
+        /* Each bot is a wrapper with a canvas overlay on top of the image */
+        .bot {
+            width: 110px;
+            height: 130px;
+            position: relative;
+            cursor: url('sprayer.png') 4 60, crosshair;
+            animation: floatBot 3s ease-in-out infinite;
+        }
+
+        .bot:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .bot:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+
+        .bot:nth-child(3) {
+            animation-delay: 0.8s;
+        }
+
+        .bot:nth-child(4) {
+            animation-delay: 1.2s;
+        }
+
+        .bot:nth-child(5) {
+            animation-delay: 1.6s;
+        }
+
+        /* Robot image — use mix-blend-mode to remove white background */
+        .bot img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+            /* multiply removes white bg against body background */
+            mix-blend-mode: multiply;
+            position: relative;
+            z-index: 1;
+            filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.5));
+            pointer-events: none;
+        }
+
+        /* Canvas sits on top of the image to paint color */
+        .bot canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50% 50% 45% 45%;
+            pointer-events: none;
+            z-index: 2;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        @keyframes floatBot {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-14px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        /* Color spray effect */
+        .splash {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: splash 0.7s ease-out forwards;
+        }
+
+        @keyframes splash {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* Color Pots */
+        .pots {
+            position: fixed;
+            bottom: 20px;
+            width: 100%;
+        }
+
+        .pot-container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            align-items: flex-end;
+        }
+
+        /* Pot wrapper */
+        .pot-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .pot-wrapper:hover {
+            transform: scale(1.12) translateY(-4px);
+        }
+
+        .pot-wrapper.selected {
+            transform: scale(1.18) translateY(-8px);
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+        }
+
+        .pot-svg {
+            width: 70px;
+            height: 80px;
+        }
+
+        .pot-label {
+            margin-top: 6px;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            opacity: 0.85;
+            color: #fff;
+        }
+
+        .pot-wrapper.selected .pot-label {
+            opacity: 1;
+            text-shadow: 0 0 8px #fff;
+        }
+
+        .pot-tick {
+            display: none;
+            font-size: 18px;
+            margin-top: -60px;
+            position: relative;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .pot-wrapper.selected .pot-tick {
+            display: block;
+        }
+
+        .instructions {
+            margin-bottom: 12px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🌸 Happy Holi 🤖</h1>
+
+    <div class="ai-container" id="botArea">
+        <!-- Each bot has an img + canvas for color overlay -->
+        <div class="bot" id="bot0"><img src="robot.png" alt="AI Bot"><canvas id="canvas0" width="110"
+                height="130"></canvas></div>
+        <div class="bot" id="bot1"><img src="robot.png" alt="AI Bot"><canvas id="canvas1" width="110"
+                height="130"></canvas></div>
+        <div class="bot" id="bot2"><img src="robot.png" alt="AI Bot"><canvas id="canvas2" width="110"
+                height="130"></canvas></div>
+        <div class="bot" id="bot3"><img src="robot.png" alt="AI Bot"><canvas id="canvas3" width="110"
+                height="130"></canvas></div>
+        <div class="bot" id="bot4"><img src="robot.png" alt="AI Bot"><canvas id="canvas4" width="110"
+                height="130"></canvas></div>
+    </div>
+
+
+    <div class="pots">
+        <div class="instructions">Choose the color pot and spray the bots! 🎨</div>
+
+        <div class="pot-container" id="potContainer">
+
+            <!-- Red Pot -->
+            <div class="pot-wrapper selected" data-color="red" id="pot-red">
+                <svg class="pot-svg" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+                    <ellipse cx="50" cy="18" rx="28" ry="8" fill="#b22222" opacity="0.9" />
+                    <rect x="28" y="18" width="44" height="10" rx="3" fill="#cc2200" />
+                    <ellipse cx="50" cy="75" rx="40" ry="42" fill="red" />
+                    <ellipse cx="35" cy="52" rx="10" ry="16" fill="rgba(255,255,255,0.18)"
+                        transform="rotate(-15,35,52)" />
+                    <ellipse cx="50" cy="16" rx="20" ry="5" fill="rgba(255,200,200,0.35)" />
+                    <ellipse cx="50" cy="114" rx="18" ry="5" fill="#991100" />
+                </svg>
+                <span class="pot-tick">✔</span>
+                <span class="pot-label">Red</span>
+            </div>
+
+            <!-- Blue Pot -->
+            <div class="pot-wrapper" data-color="blue" id="pot-blue">
+                <svg class="pot-svg" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+                    <ellipse cx="50" cy="18" rx="28" ry="8" fill="#1a1aaa" opacity="0.9" />
+                    <rect x="28" y="18" width="44" height="10" rx="3" fill="#0000cc" />
+                    <ellipse cx="50" cy="75" rx="40" ry="42" fill="#1a3fff" />
+                    <ellipse cx="35" cy="52" rx="10" ry="16" fill="rgba(255,255,255,0.18)"
+                        transform="rotate(-15,35,52)" />
+                    <ellipse cx="50" cy="16" rx="20" ry="5" fill="rgba(180,200,255,0.35)" />
+                    <ellipse cx="50" cy="114" rx="18" ry="5" fill="#00008b" />
+                </svg>
+                <span class="pot-tick">✔</span>
+                <span class="pot-label">Blue</span>
+            </div>
+
+            <!-- Green Pot -->
+            <div class="pot-wrapper" data-color="green" id="pot-green">
+                <svg class="pot-svg" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+                    <ellipse cx="50" cy="18" rx="28" ry="8" fill="#145214" opacity="0.9" />
+                    <rect x="28" y="18" width="44" height="10" rx="3" fill="#196619" />
+                    <ellipse cx="50" cy="75" rx="40" ry="42" fill="#228B22" />
+                    <ellipse cx="35" cy="52" rx="10" ry="16" fill="rgba(255,255,255,0.18)"
+                        transform="rotate(-15,35,52)" />
+                    <ellipse cx="50" cy="16" rx="20" ry="5" fill="rgba(180,255,180,0.35)" />
+                    <ellipse cx="50" cy="114" rx="18" ry="5" fill="#0d3d0d" />
+                </svg>
+                <span class="pot-tick">✔</span>
+                <span class="pot-label">Green</span>
+            </div>
+
+            <!-- Yellow Pot -->
+            <div class="pot-wrapper" data-color="gold" id="pot-yellow">
+                <svg class="pot-svg" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+                    <ellipse cx="50" cy="18" rx="28" ry="8" fill="#b8860b" opacity="0.9" />
+                    <rect x="28" y="18" width="44" height="10" rx="3" fill="#ccaa00" />
+                    <ellipse cx="50" cy="75" rx="40" ry="42" fill="gold" />
+                    <ellipse cx="35" cy="52" rx="10" ry="16" fill="rgba(255,255,255,0.25)"
+                        transform="rotate(-15,35,52)" />
+                    <ellipse cx="50" cy="16" rx="20" ry="5" fill="rgba(255,255,200,0.4)" />
+                    <ellipse cx="50" cy="114" rx="18" ry="5" fill="#8B6914" />
+                </svg>
+                <span class="pot-tick">✔</span>
+                <span class="pot-label">Yellow</span>
+            </div>
+
+            <!-- Purple Pot -->
+            <div class="pot-wrapper" data-color="purple" id="pot-purple">
+                <svg class="pot-svg" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+                    <ellipse cx="50" cy="18" rx="28" ry="8" fill="#3d0052" opacity="0.9" />
+                    <rect x="28" y="18" width="44" height="10" rx="3" fill="#5a0080" />
+                    <ellipse cx="50" cy="75" rx="40" ry="42" fill="purple" />
+                    <ellipse cx="35" cy="52" rx="10" ry="16" fill="rgba(255,255,255,0.18)"
+                        transform="rotate(-15,35,52)" />
+                    <ellipse cx="50" cy="16" rx="20" ry="5" fill="rgba(220,180,255,0.35)" />
+                    <ellipse cx="50" cy="114" rx="18" ry="5" fill="#2d0040" />
+                </svg>
+                <span class="pot-tick">✔</span>
+                <span class="pot-label">Purple</span>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+
+        let selectedColor = "red"
+
+        // Track color level per bot (0 to 1, increments by 0.2 per click)
+        const botLevels = [0, 0, 0, 0, 0]
+
+        /* ---- Color pot selection ---- */
+        document.querySelectorAll(".pot-wrapper").forEach(pot => {
+            pot.addEventListener("click", (e) => {
+                e.stopPropagation()
+                document.querySelectorAll(".pot-wrapper").forEach(p => p.classList.remove("selected"))
+                pot.classList.add("selected")
+                selectedColor = pot.dataset.color
+                document.body.style.cursor = "url('sprayer.png') 4 60, crosshair"
+            })
+        })
+
+        /* ---- Paint color onto bot canvas ---- */
+        function paintBot(index, color) {
+            const canvas = document.getElementById("canvas" + index)
+            const ctx = canvas.getContext("2d")
+
+            // Convert color name to rgba with 0.2 opacity
+            ctx.globalAlpha = 0.2
+            ctx.fillStyle = color
+
+            // Draw an ellipse shape roughly matching bot body
+            ctx.beginPath()
+            ctx.ellipse(
+                canvas.width / 2,
+                canvas.height / 2 + 10,
+                canvas.width * 0.42,
+                canvas.height * 0.44,
+                0, 0, Math.PI * 2
+            )
+            ctx.fill()
+
+            // Increment level and update canvas opacity (CSS)
+            botLevels[index] = Math.min(1, botLevels[index] + 0.2)
+            canvas.style.opacity = botLevels[index]
+
+            // Reset at max
+            if (botLevels[index] >= 1) {
+                setTimeout(() => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height)
+                    botLevels[index] = 0
+                    canvas.style.opacity = 0
+                }, 1500)
+            }
+        }
+
+        /* ---- Check if click hits a bot ---- */
+        document.addEventListener("click", (e) => {
+            // Don't spray if clicked on a pot
+            if (e.target.closest(".pot-wrapper")) return
+
+            // Check if click is on a bot
+            let hitBot = false
+            for (let i = 0; i < 5; i++) {
+                const botEl = document.getElementById("bot" + i)
+                const rect = botEl.getBoundingClientRect()
+                if (
+                    e.clientX >= rect.left && e.clientX <= rect.right &&
+                    e.clientY >= rect.top && e.clientY <= rect.bottom
+                ) {
+                    paintBot(i, selectedColor)
+                    hitBot = true
+                    break
+                }
+            }
+
+            // Always show spray splash at click position
+            let splash = document.createElement("div")
+            splash.className = "splash"
+            splash.style.background = selectedColor
+            splash.style.left = e.pageX + "px"
+            splash.style.top = e.pageY + "px"
+            document.body.appendChild(splash)
+            setTimeout(() => splash.remove(), 700)
+        })
+
+    </script>
+
+</body>
+
+</html>
