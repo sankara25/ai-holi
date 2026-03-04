@@ -3,387 +3,1426 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Happy Holi - AI Celebration</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="AI Holi Celebration — Spray colors on AI bots and celebrate the festival of colors!">
+    <title>AI Holi | ColorBot Festival</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Space+Grotesk:wght@400;600;700&display=swap"
+        rel="stylesheet">
 
     <style>
-        body {
+        /* ─── RESET & BASE ─────────────────────────────────────── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
             margin: 0;
-            font-family: Arial, sans-serif;
-            background: radial-gradient(circle at center, #0f2027, #203a43, #2c5364);
-            color: white;
-            text-align: center;
+            padding: 0;
+        }
+
+        :root {
+            --primary: #7c3aed;
+            --secondary: #06b6d4;
+            --accent: #f59e0b;
+            --surface: rgba(255, 255, 255, 0.06);
+            --border: rgba(255, 255, 255, 0.12);
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --radius-lg: 20px;
+            --radius-xl: 32px;
+            --shadow-glow: 0 0 40px rgba(124, 58, 237, 0.45);
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #050b16;
+            color: var(--text-main);
+            height: 100dvh;
             overflow: hidden;
-            /* Use sprayer.png as mouse cursor */
             cursor: url('sprayer.png') 4 60, crosshair;
+            position: relative;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* Title */
-        h1 {
-            margin-top: 20px;
-            font-size: 50px;
-            letter-spacing: 3px;
+        /* ─── ANIMATED GRADIENT BG ────────────────────────────── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 10%, rgba(124, 58, 237, 0.25) 0%, transparent 60%),
+                radial-gradient(ellipse 70% 50% at 80% 90%, rgba(6, 182, 212, 0.2) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 50% 50%, rgba(245, 158, 11, 0.08) 0%, transparent 70%),
+                linear-gradient(160deg, #050b16 0%, #0d1425 50%, #090f1e 100%);
+            z-index: -2;
+            pointer-events: none;
         }
 
-        /* AI Bots Area */
-        .ai-container {
+        /* ─── FLOATING PARTICLE DOTS ──────────────────────────── */
+        .particles {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0;
+            animation: particleFade var(--dur, 6s) ease-in-out infinite var(--delay, 0s);
+        }
+
+        @keyframes particleFade {
+            0% {
+                opacity: 0;
+                transform: translateY(0) scale(0.6);
+            }
+
+            30% {
+                opacity: 0.55;
+            }
+
+            70% {
+                opacity: 0.4;
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-120px) scale(1.2);
+            }
+        }
+
+        /* ─── FLOATING COLOR BLOBS ────────────────────────────── */
+        .blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.12;
+            pointer-events: none;
+            animation: blobMove 12s ease-in-out infinite alternate;
+            z-index: -1;
+        }
+
+        .blob-1 {
+            width: 500px;
+            height: 500px;
+            background: #7c3aed;
+            top: -100px;
+            left: -150px;
+            animation-duration: 14s;
+        }
+
+        .blob-2 {
+            width: 400px;
+            height: 400px;
+            background: #06b6d4;
+            bottom: -80px;
+            right: -100px;
+            animation-duration: 11s;
+            animation-delay: 3s;
+        }
+
+        .blob-3 {
+            width: 350px;
+            height: 350px;
+            background: #f43f5e;
+            top: 40%;
+            left: 55%;
+            animation-duration: 9s;
+            animation-delay: 1.5s;
+        }
+
+        @keyframes blobMove {
+            from {
+                transform: translate(0, 0) scale(1);
+            }
+
+            to {
+                transform: translate(40px, 30px) scale(1.15);
+            }
+        }
+
+        /* ─── NAV ─────────────────────────────────────────────── */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            height: 68px;
+            background: rgba(5, 11, 22, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .navbar__logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 1.2rem;
+            letter-spacing: 0.5px;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .navbar__logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .navbar__badge {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: #fff;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+        .navbar__actions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .btn-nav {
+            padding: 8px 20px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn-nav--ghost {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+        }
+
+        .btn-nav--ghost:hover {
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-nav--primary {
+            background: linear-gradient(135deg, var(--primary), #9333ea);
+            color: #fff;
+            box-shadow: 0 4px 18px rgba(124, 58, 237, 0.4);
+        }
+
+        .btn-nav--primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(124, 58, 237, 0.55);
+        }
+
+        /* ─── HERO SECTION ────────────────────────────────────── */
+        /* ─── MAIN LAYOUT WRAPPER ──────────────────────────── */
+        .page-layout {
+            display: flex;
+            flex-direction: column;
+            height: 100dvh;
+            padding-top: 68px;
+            /* navbar height */
+            padding-bottom: 110px;
+            /* palette panel height */
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        /* ─── HERO SECTION ────────────────────────────────────── */
+        .hero {
+            flex-shrink: 0;
+            padding: 12px 16px 8px;
+            text-align: center;
+        }
+
+        .hero__tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(124, 58, 237, 0.15);
+            border: 1px solid rgba(124, 58, 237, 0.4);
+            color: #c4b5fd;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            padding: 4px 14px;
+            border-radius: 50px;
+            margin-bottom: 8px;
+        }
+
+        .hero__tag span {
+            width: 6px;
+            height: 6px;
+            background: #7c3aed;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 1.6s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.5);
+                opacity: 0.6;
+            }
+        }
+
+        .hero__title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(1.5rem, 3.5vw, 2.4rem);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fff 0%, #c4b5fd 40%, #67e8f9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 6px;
+        }
+
+        .hero__sub {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            max-width: 480px;
+            margin: 0 auto 8px;
+            line-height: 1.5;
+            font-weight: 400;
+        }
+
+        .hero__cta-row {
             display: flex;
             justify-content: center;
-            gap: 40px;
-            margin-top: 60px;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .btn-hero {
+            padding: 8px 20px;
+            border-radius: 12px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: all 0.25s;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .btn-hero--primary {
+            background: linear-gradient(135deg, var(--primary), #9333ea);
+            color: #fff;
+            box-shadow: 0 6px 28px rgba(124, 58, 237, 0.45);
+        }
+
+        .btn-hero--primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 36px rgba(124, 58, 237, 0.6);
+        }
+
+        .btn-hero--outline {
+            background: var(--surface);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-hero--outline:hover {
+            border-color: rgba(255, 255, 255, 0.28);
+            background: rgba(255, 255, 255, 0.09);
+        }
+
+        /* ─── STAT CHIPS ──────────────────────────────────────── */
+        .hero__stats {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 0;
+        }
+
+        .stat-chip {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            padding: 4px 12px;
+            font-size: 0.73rem;
+            color: var(--text-muted);
+            backdrop-filter: blur(8px);
+        }
+
+        .stat-chip strong {
+            color: #fff;
+            font-weight: 700;
+        }
+
+        /* ─── CANVAS OVERLAY (full screen – splash particles) ─── */
+        #splashCanvas {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        /* ─── BOT STAGE ───────────────────────────────────────── */
+        .stage-wrap {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 6px 0 0;
+            min-height: 0;
+        }
+
+        .stage-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            flex-shrink: 0;
+        }
+
+        /* Glass floor */
+        .stage-floor {
+            width: 75%;
+            max-width: 800px;
+            height: 18px;
+            background: linear-gradient(180deg, rgba(124, 58, 237, 0.18) 0%, transparent 100%);
+            border-radius: 50%;
+            margin: 0 auto;
+            filter: blur(6px);
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        .bots-row {
+            display: flex;
+            justify-content: center;
             align-items: flex-end;
+            gap: clamp(12px, 2.5vw, 32px);
+            padding: 0 20px;
+            flex: 1;
+            min-height: 0;
         }
 
-        /* Each bot is a wrapper with a canvas overlay on top of the image */
-        .bot {
-            width: 110px;
-            height: 130px;
-            position: relative;
+        /* ─── BOT CARD ────────────────────────────────────────── */
+        .bot-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             cursor: url('sprayer.png') 4 60, crosshair;
-            animation: floatBot 3s ease-in-out infinite;
+            position: relative;
+            flex-shrink: 0;
         }
 
-        .bot:nth-child(1) {
+        .bot-card:nth-child(1) .bot-img-wrap {
             animation-delay: 0s;
         }
 
-        .bot:nth-child(2) {
-            animation-delay: 0.4s;
+        .bot-card:nth-child(2) .bot-img-wrap {
+            animation-delay: 0.35s;
         }
 
-        .bot:nth-child(3) {
-            animation-delay: 0.8s;
+        .bot-card:nth-child(3) .bot-img-wrap {
+            animation-delay: 0.7s;
         }
 
-        .bot:nth-child(4) {
-            animation-delay: 1.2s;
+        .bot-card:nth-child(4) .bot-img-wrap {
+            animation-delay: 1.05s;
         }
 
-        .bot:nth-child(5) {
-            animation-delay: 1.6s;
+        .bot-card:nth-child(5) .bot-img-wrap {
+            animation-delay: 1.4s;
         }
 
-        /* Robot image — use mix-blend-mode to remove white background */
-        .bot img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            display: block;
-            /* multiply removes white bg against body background */
-            mix-blend-mode: multiply;
+        /* Glassmorphism pedestal */
+        .bot-pedestal {
+            width: clamp(80px, 10vw, 110px);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02));
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg) var(--radius-lg) 8px 8px;
+            padding: 10px 8px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            backdrop-filter: blur(16px);
+            transition: border-color 0.3s, box-shadow 0.3s;
             position: relative;
-            z-index: 1;
-            filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.5));
-            pointer-events: none;
+            overflow: hidden;
         }
 
-        /* Canvas sits on top of the image to paint color */
-        .bot canvas {
+        .bot-pedestal::before {
+            content: '';
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            border-radius: 50% 50% 45% 45%;
-            pointer-events: none;
-            z-index: 2;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+        }
+
+        .bot-card:hover .bot-pedestal {
+            border-color: rgba(124, 58, 237, 0.5);
+            box-shadow: 0 10px 40px rgba(124, 58, 237, 0.25);
+        }
+
+        .bot-pedestal::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70%;
+            height: 2px;
+            border-radius: 50%;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
             opacity: 0;
             transition: opacity 0.3s;
         }
 
+        .bot-card:hover .bot-pedestal::after {
+            opacity: 1;
+        }
+
+        .bot-img-wrap {
+            position: relative;
+            width: clamp(70px, 9vw, 100px);
+            height: clamp(85px, 11vw, 120px);
+            animation: floatBot 3s ease-in-out infinite;
+        }
+
         @keyframes floatBot {
-            0% {
-                transform: translateY(0px);
+
+            0%,
+            100% {
+                transform: translateY(0);
             }
 
             50% {
-                transform: translateY(-14px);
-            }
-
-            100% {
-                transform: translateY(0px);
+                transform: translateY(-10px);
             }
         }
 
-        /* Color spray effect */
-        .splash {
+        .bot-img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+            filter: drop-shadow(0 8px 20px rgba(124, 58, 237, 0.5));
+            pointer-events: none;
+            position: relative;
+            z-index: 1;
+            transition: filter 0.4s ease;
+        }
+
+        .bot-color-canvas {
             position: absolute;
-            width: 30px;
-            height: 30px;
+            inset: 0;
+            border-radius: 50% 50% 40% 40%;
+            pointer-events: none;
+            z-index: 2;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            mix-blend-mode: color;
+        }
+
+        /* Bot name tag */
+        .bot-name {
+            font-size: 0.62rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Color level bar */
+        .bot-meter {
+            width: 80%;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .bot-meter-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 4px;
+            transition: width 0.4s ease, background 0.4s;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        /* Shadow beneath floating bot */
+        .bot-shadow {
+            width: 60px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(124, 58, 237, 0.25);
+            filter: blur(5px);
+            margin-top: -3px;
+            animation: shadowScale 3s ease-in-out infinite;
+        }
+
+        .bot-card:nth-child(1) .bot-shadow {
+            animation-delay: 0s;
+        }
+
+        .bot-card:nth-child(2) .bot-shadow {
+            animation-delay: 0.35s;
+        }
+
+        .bot-card:nth-child(3) .bot-shadow {
+            animation-delay: 0.7s;
+        }
+
+        .bot-card:nth-child(4) .bot-shadow {
+            animation-delay: 1.05s;
+        }
+
+        .bot-card:nth-child(5) .bot-shadow {
+            animation-delay: 1.4s;
+        }
+
+        @keyframes shadowScale {
+
+            0%,
+            100% {
+                transform: scaleX(1);
+                opacity: 0.5;
+            }
+
+            50% {
+                transform: scaleX(0.65);
+                opacity: 0.2;
+            }
+        }
+
+        /* ─── PALETTE PANEL ───────────────────────────────────── */
+        .palette-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 90;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 0 14px;
+            background: rgba(5, 11, 22, 0.82);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-top: 1px solid var(--border);
+            height: 110px;
+            box-sizing: border-box;
+            justify-content: center;
+        }
+
+        .palette-hint {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .palette-hint::before,
+        .palette-hint::after {
+            content: '';
+            flex: 1;
+            max-width: 60px;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .palette-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 20px;
+        }
+
+        /* ─── COLOR POT ───────────────────────────────────────── */
+        .color-pot {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: transform 0.22s ease;
+        }
+
+        .color-pot:hover {
+            transform: translateY(-6px) scale(1.08);
+        }
+
+        .color-pot.active {
+            transform: translateY(-10px) scale(1.15);
+        }
+
+        .color-pot.active .pot-vessel {
+            filter: drop-shadow(0 0 12px var(--pot-clr));
+        }
+
+        .pot-vessel {
+            width: 62px;
+            height: 74px;
+        }
+
+        .pot-tag {
+            font-size: 0.63rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            transition: color 0.2s;
+        }
+
+        .color-pot.active .pot-tag {
+            color: #fff;
+            text-shadow: 0 0 8px currentColor;
+        }
+
+        .pot-check {
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            margin-top: -42px;
+            position: relative;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .color-pot.active .pot-check {
+            opacity: 1;
+        }
+
+        /* ─── SPRAY SPLASH ────────────────────────────────────── */
+        .splash-dot {
+            position: fixed;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
             pointer-events: none;
-            animation: splash 0.7s ease-out forwards;
+            z-index: 200;
+            animation: splashAnim 0.75s ease-out forwards;
         }
 
-        @keyframes splash {
+        @keyframes splashAnim {
             0% {
                 transform: scale(1);
                 opacity: 1;
             }
 
             100% {
-                transform: scale(4);
+                transform: scale(4.5);
                 opacity: 0;
             }
         }
 
-        /* Color Pots */
-        .pots {
-            position: fixed;
-            bottom: 20px;
-            width: 100%;
+        /* ─── DIVIDER ─────────────────────────────────────────── */
+        .divider {
+            width: 1px;
+            height: 50px;
+            background: var(--border);
+            align-self: center;
+            margin: 0 4px;
         }
 
-        .pot-container {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            align-items: flex-end;
-        }
-
-        /* Pot wrapper */
-        .pot-wrapper {
+        /* ─── RESET BTN in palette ────────────────────────────── */
+        .palette-reset-btn {
             display: flex;
             flex-direction: column;
             align-items: center;
+            gap: 5px;
             cursor: pointer;
-            transition: transform 0.2s;
+            padding: 4px 10px;
         }
 
-        .pot-wrapper:hover {
-            transform: scale(1.12) translateY(-4px);
+        .palette-reset-btn .icon-ring {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: background 0.2s, transform 0.2s;
         }
 
-        .pot-wrapper.selected {
-            transform: scale(1.18) translateY(-8px);
-            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+        .palette-reset-btn:hover .icon-ring {
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(30deg) scale(1.1);
         }
 
-        .pot-svg {
-            width: 70px;
-            height: 80px;
-        }
-
-        .pot-label {
-            margin-top: 6px;
-            font-size: 11px;
-            font-weight: bold;
+        .palette-reset-btn .btn-txt {
+            font-size: 0.6rem;
+            color: var(--text-muted);
             letter-spacing: 1px;
             text-transform: uppercase;
-            opacity: 0.85;
+        }
+
+        /* ─── SCORE BADGE ─────────────────────────────────────── */
+        .score-badge {
+            position: fixed;
+            top: 82px;
+            right: 20px;
+            z-index: 95;
+            background: rgba(5, 11, 22, 0.75);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 12px 18px;
+            backdrop-filter: blur(16px);
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .score-val {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent), #f43f5e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+
+        .score-lbl {
+            font-size: 0.63rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        /* ─── TOAST NOTIFICATION ──────────────────────────────── */
+        .toast {
+            position: fixed;
+            top: 82px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            z-index: 300;
+            background: rgba(5, 11, 22, 0.9);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 10px 22px;
+            font-size: 0.85rem;
+            font-weight: 600;
             color: #fff;
-        }
-
-        .pot-wrapper.selected .pot-label {
-            opacity: 1;
-            text-shadow: 0 0 8px #fff;
-        }
-
-        .pot-tick {
-            display: none;
-            font-size: 18px;
-            margin-top: -60px;
-            position: relative;
-            z-index: 2;
+            backdrop-filter: blur(20px);
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
             pointer-events: none;
         }
 
-        .pot-wrapper.selected .pot-tick {
-            display: block;
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
         }
 
-        .instructions {
-            margin-bottom: 12px;
-            font-size: 18px;
+        /* ─── LITTLE CONFETTI BURSTS ──────────────────────────── */
+        .confetti-bit {
+            position: fixed;
+            width: 7px;
+            height: 7px;
+            border-radius: 2px;
+            pointer-events: none;
+            z-index: 199;
+            animation: confettiFall var(--t, 1.2s) ease-out forwards;
+        }
+
+        @keyframes confettiFall {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) rotate(0deg) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(var(--tx, 20px), var(--ty, 60px)) rotate(var(--tr, 180deg)) scale(0.5);
+            }
+        }
+
+        /* ─── SCROLLBAR ───────────────────────────────────────── */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(124, 58, 237, 0.4);
+            border-radius: 4px;
         }
     </style>
 </head>
 
 <body>
 
-    <h1>🌸 Happy Holi 🤖</h1>
+    <!-- Ambient blobs -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
 
-    <div class="ai-container" id="botArea">
-        <!-- Each bot has an img + canvas for color overlay -->
-        <div class="bot" id="bot0"><img src="robot.png" alt="AI Bot"><canvas id="canvas0" width="110"
-                height="130"></canvas></div>
-        <div class="bot" id="bot1"><img src="robot.png" alt="AI Bot"><canvas id="canvas1" width="110"
-                height="130"></canvas></div>
-        <div class="bot" id="bot2"><img src="robot.png" alt="AI Bot"><canvas id="canvas2" width="110"
-                height="130"></canvas></div>
-        <div class="bot" id="bot3"><img src="robot.png" alt="AI Bot"><canvas id="canvas3" width="110"
-                height="130"></canvas></div>
-        <div class="bot" id="bot4"><img src="robot.png" alt="AI Bot"><canvas id="canvas4" width="110"
-                height="130"></canvas></div>
+    <!-- Floating particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Fullscreen splash canvas -->
+    <canvas id="splashCanvas"></canvas>
+
+    <!-- ─── NAVBAR ─────────────────────────────────────────── -->
+    <nav class="navbar">
+        <a href="#" class="navbar__logo">
+            <div class="navbar__logo-icon">🤖</div>
+            <span>ColorBot</span>
+            <span style="color:var(--text-muted); font-weight:300;">Studio</span>
+        </a>
+        <div style="display:flex; align-items:center; gap:12px;">
+            <span class="navbar__badge">🎨 Holi 2025</span>
+        </div>
+        <div class="navbar__actions">
+            <button class="btn-nav btn-nav--ghost" onclick="resetAll()">↺ Reset</button>
+            <button class="btn-nav btn-nav--primary" onclick="showToast('🎉 Happy Holi!')">Share Joy</button>
+        </div>
+    </nav>
+
+    <!-- ─── SCORE BADGE ───────────────────────────────────── -->
+    <div class="score-badge">
+        <div class="score-val" id="scoreVal">0</div>
+        <div class="score-lbl">Splashes</div>
     </div>
 
+    <!-- ─── TOAST ─────────────────────────────────────────── -->
+    <div class="toast" id="toast"></div>
 
-    <div class="pots">
-        <div class="instructions">Choose the color pot and spray the bots! 🎨</div>
+    <!-- ─── MAIN LAYOUT ──────────────────────────────────── -->
+    <div class="page-layout">
 
-        <div class="pot-container" id="potContainer">
+        <!-- ─── HERO ──────────────────────────────────────────── -->
+        <section class="hero">
+            <div class="hero__tag">
+                <span></span>
+                Interactive AI Experience
+            </div>
+            <h1 class="hero__title">🌸 Happy Holi<br>with AI Bots</h1>
+            <p class="hero__sub">
+                Pick a color pot below, spray your selected bots, and celebrate the festival of colors with your AI
+                companions!
+            </p>
+            <div class="hero__cta-row">
+                <button class="btn-hero btn-hero--primary" onclick="showToast('🎨 Pick a color &amp; start spraying!')">
+                    🔫 Start Spraying
+                </button>
+                <button class="btn-hero btn-hero--outline" onclick="resetAll()">
+                    ↺ Reset Bots
+                </button>
+            </div>
+            <div class="hero__stats">
+                <div class="stat-chip">🤖 <strong>5</strong> AI Bots</div>
+                <div class="stat-chip">🎨 <strong>5</strong> Colors</div>
+                <div class="stat-chip">💦 <strong>20%</strong> per spray</div>
+            </div>
+        </section>
 
-            <!-- Red Pot -->
-            <div class="pot-wrapper selected" data-color="red" id="pot-red">
-                <svg class="pot-svg" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+        <!-- ─── STAGE ─────────────────────────────────────────── -->
+        <section class="stage-wrap">
+            <p class="stage-label">— Click on bots to spray color —</p>
+
+            <div class="bots-row" id="botsRow">
+
+                <!-- BOT 0: ChatGPT -->
+                <div class="bot-card" id="bot-card-0">
+                    <div class="bot-pedestal">
+                        <div class="bot-img-wrap" id="bot0">
+                            <img src="robot.png" alt="ChatGPT Bot">
+                            <canvas class="bot-color-canvas" id="canvas0" width="90" height="110"></canvas>
+                        </div>
+                        <div class="bot-shadow"></div>
+                        <div class="bot-name">ChatGPT</div>
+                        <div class="bot-meter">
+                            <div class="bot-meter-fill" id="meter0"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BOT 1: Gemini -->
+                <div class="bot-card" id="bot-card-1">
+                    <div class="bot-pedestal">
+                        <div class="bot-img-wrap" id="bot1">
+                            <img src="robot.png" alt="Gemini Bot">
+                            <canvas class="bot-color-canvas" id="canvas1" width="90" height="110"></canvas>
+                        </div>
+                        <div class="bot-shadow"></div>
+                        <div class="bot-name">Gemini</div>
+                        <div class="bot-meter">
+                            <div class="bot-meter-fill" id="meter1"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BOT 2: Claude (center / featured) -->
+                <div class="bot-card" id="bot-card-2">
+                    <div class="bot-pedestal"
+                        style="width:clamp(90px,11vw,124px); background: linear-gradient(135deg,rgba(124,58,237,0.15),rgba(6,182,212,0.08)); border-color: rgba(124,58,237,0.35);">
+                        <div class="bot-img-wrap" style="width:clamp(80px,10vw,110px); height:clamp(96px,12vw,134px);"
+                            id="bot2">
+                            <img src="robot.png" alt="Claude Bot">
+                            <canvas class="bot-color-canvas" id="canvas2" width="110" height="134"></canvas>
+                        </div>
+                        <div class="bot-shadow" style="width:clamp(60px,8vw,80px);"></div>
+                        <div class="bot-name" style="color:#c4b5fd;">Claude ✨</div>
+                        <div class="bot-meter">
+                            <div class="bot-meter-fill" id="meter2"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BOT 3: Copilot -->
+                <div class="bot-card" id="bot-card-3">
+                    <div class="bot-pedestal">
+                        <div class="bot-img-wrap" id="bot3">
+                            <img src="robot.png" alt="Copilot Bot">
+                            <canvas class="bot-color-canvas" id="canvas3" width="90" height="110"></canvas>
+                        </div>
+                        <div class="bot-shadow"></div>
+                        <div class="bot-name">Copilot</div>
+                        <div class="bot-meter">
+                            <div class="bot-meter-fill" id="meter3"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BOT 4: Meta AI -->
+                <div class="bot-card" id="bot-card-4">
+                    <div class="bot-pedestal">
+                        <div class="bot-img-wrap" id="bot4">
+                            <img src="robot.png" alt="Meta AI Bot">
+                            <canvas class="bot-color-canvas" id="canvas4" width="90" height="110"></canvas>
+                        </div>
+                        <div class="bot-shadow"></div>
+                        <div class="bot-name">Meta AI</div>
+                        <div class="bot-meter">
+                            <div class="bot-meter-fill" id="meter4"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="stage-floor"></div>
+        </section>
+
+    </div><!-- /page-layout -->
+
+    <!-- ─── PALETTE PANEL ──────────────────────────────────── -->
+    <div class="palette-panel">
+        <div class="palette-hint">Select Color &amp; Spray</div>
+        <div class="palette-row" id="paletteRow">
+
+            <!-- Pot: Red -->
+            <div class="color-pot active" data-color="red" data-name="Red" style="--pot-clr:#ef4444;" id="p-red">
+                <svg class="pot-vessel" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
                     <ellipse cx="50" cy="18" rx="28" ry="8" fill="#b22222" opacity="0.9" />
                     <rect x="28" y="18" width="44" height="10" rx="3" fill="#cc2200" />
-                    <ellipse cx="50" cy="75" rx="40" ry="42" fill="red" />
-                    <ellipse cx="35" cy="52" rx="10" ry="16" fill="rgba(255,255,255,0.18)"
+                    <ellipse cx="50" cy="75" rx="40" ry="42" fill="#ef4444" />
+                    <ellipse cx="35" cy="52" rx="10" ry="16" fill="rgba(255,255,255,0.2)"
                         transform="rotate(-15,35,52)" />
-                    <ellipse cx="50" cy="16" rx="20" ry="5" fill="rgba(255,200,200,0.35)" />
+                    <ellipse cx="50" cy="16" rx="20" ry="5" fill="rgba(255,210,210,0.3)" />
                     <ellipse cx="50" cy="114" rx="18" ry="5" fill="#991100" />
                 </svg>
-                <span class="pot-tick">✔</span>
-                <span class="pot-label">Red</span>
+                <span class="pot-check">✔</span>
+                <span class="pot-tag">Red</span>
             </div>
 
-            <!-- Blue Pot -->
-            <div class="pot-wrapper" data-color="blue" id="pot-blue">
-                <svg class="pot-svg" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-                    <ellipse cx="50" cy="18" rx="28" ry="8" fill="#1a1aaa" opacity="0.9" />
-                    <rect x="28" y="18" width="44" height="10" rx="3" fill="#0000cc" />
-                    <ellipse cx="50" cy="75" rx="40" ry="42" fill="#1a3fff" />
-                    <ellipse cx="35" cy="52" rx="10" ry="16" fill="rgba(255,255,255,0.18)"
+            <!-- Pot: Blue -->
+            <div class="color-pot" data-color="#3b82f6" data-name="Blue" style="--pot-clr:#3b82f6;" id="p-blue">
+                <svg class="pot-vessel" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+                    <ellipse cx="50" cy="18" rx="28" ry="8" fill="#1e3a8a" opacity="0.9" />
+                    <rect x="28" y="18" width="44" height="10" rx="3" fill="#1d4ed8" />
+                    <ellipse cx="50" cy="75" rx="40" ry="42" fill="#3b82f6" />
+                    <ellipse cx="35" cy="52" rx="10" ry="16" fill="rgba(255,255,255,0.2)"
                         transform="rotate(-15,35,52)" />
-                    <ellipse cx="50" cy="16" rx="20" ry="5" fill="rgba(180,200,255,0.35)" />
-                    <ellipse cx="50" cy="114" rx="18" ry="5" fill="#00008b" />
+                    <ellipse cx="50" cy="16" rx="20" ry="5" fill="rgba(191,219,254,0.3)" />
+                    <ellipse cx="50" cy="114" rx="18" ry="5" fill="#1e3a8a" />
                 </svg>
-                <span class="pot-tick">✔</span>
-                <span class="pot-label">Blue</span>
+                <span class="pot-check">✔</span>
+                <span class="pot-tag">Blue</span>
             </div>
 
-            <!-- Green Pot -->
-            <div class="pot-wrapper" data-color="green" id="pot-green">
-                <svg class="pot-svg" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-                    <ellipse cx="50" cy="18" rx="28" ry="8" fill="#145214" opacity="0.9" />
-                    <rect x="28" y="18" width="44" height="10" rx="3" fill="#196619" />
-                    <ellipse cx="50" cy="75" rx="40" ry="42" fill="#228B22" />
-                    <ellipse cx="35" cy="52" rx="10" ry="16" fill="rgba(255,255,255,0.18)"
+            <!-- Pot: Green -->
+            <div class="color-pot" data-color="#22c55e" data-name="Green" style="--pot-clr:#22c55e;" id="p-green">
+                <svg class="pot-vessel" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+                    <ellipse cx="50" cy="18" rx="28" ry="8" fill="#14532d" opacity="0.9" />
+                    <rect x="28" y="18" width="44" height="10" rx="3" fill="#15803d" />
+                    <ellipse cx="50" cy="75" rx="40" ry="42" fill="#22c55e" />
+                    <ellipse cx="35" cy="52" rx="10" ry="16" fill="rgba(255,255,255,0.2)"
                         transform="rotate(-15,35,52)" />
-                    <ellipse cx="50" cy="16" rx="20" ry="5" fill="rgba(180,255,180,0.35)" />
-                    <ellipse cx="50" cy="114" rx="18" ry="5" fill="#0d3d0d" />
+                    <ellipse cx="50" cy="16" rx="20" ry="5" fill="rgba(187,247,208,0.3)" />
+                    <ellipse cx="50" cy="114" rx="18" ry="5" fill="#14532d" />
                 </svg>
-                <span class="pot-tick">✔</span>
-                <span class="pot-label">Green</span>
+                <span class="pot-check">✔</span>
+                <span class="pot-tag">Green</span>
             </div>
 
-            <!-- Yellow Pot -->
-            <div class="pot-wrapper" data-color="gold" id="pot-yellow">
-                <svg class="pot-svg" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-                    <ellipse cx="50" cy="18" rx="28" ry="8" fill="#b8860b" opacity="0.9" />
-                    <rect x="28" y="18" width="44" height="10" rx="3" fill="#ccaa00" />
-                    <ellipse cx="50" cy="75" rx="40" ry="42" fill="gold" />
+            <!-- Pot: Yellow -->
+            <div class="color-pot" data-color="#f59e0b" data-name="Yellow" style="--pot-clr:#f59e0b;" id="p-yellow">
+                <svg class="pot-vessel" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+                    <ellipse cx="50" cy="18" rx="28" ry="8" fill="#92400e" opacity="0.9" />
+                    <rect x="28" y="18" width="44" height="10" rx="3" fill="#b45309" />
+                    <ellipse cx="50" cy="75" rx="40" ry="42" fill="#f59e0b" />
                     <ellipse cx="35" cy="52" rx="10" ry="16" fill="rgba(255,255,255,0.25)"
                         transform="rotate(-15,35,52)" />
-                    <ellipse cx="50" cy="16" rx="20" ry="5" fill="rgba(255,255,200,0.4)" />
-                    <ellipse cx="50" cy="114" rx="18" ry="5" fill="#8B6914" />
+                    <ellipse cx="50" cy="16" rx="20" ry="5" fill="rgba(253,230,138,0.35)" />
+                    <ellipse cx="50" cy="114" rx="18" ry="5" fill="#78350f" />
                 </svg>
-                <span class="pot-tick">✔</span>
-                <span class="pot-label">Yellow</span>
+                <span class="pot-check">✔</span>
+                <span class="pot-tag">Yellow</span>
             </div>
 
-            <!-- Purple Pot -->
-            <div class="pot-wrapper" data-color="purple" id="pot-purple">
-                <svg class="pot-svg" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-                    <ellipse cx="50" cy="18" rx="28" ry="8" fill="#3d0052" opacity="0.9" />
-                    <rect x="28" y="18" width="44" height="10" rx="3" fill="#5a0080" />
-                    <ellipse cx="50" cy="75" rx="40" ry="42" fill="purple" />
-                    <ellipse cx="35" cy="52" rx="10" ry="16" fill="rgba(255,255,255,0.18)"
+            <!-- Pot: Pink -->
+            <div class="color-pot" data-color="#ec4899" data-name="Pink" style="--pot-clr:#ec4899;" id="p-pink">
+                <svg class="pot-vessel" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+                    <ellipse cx="50" cy="18" rx="28" ry="8" fill="#831843" opacity="0.9" />
+                    <rect x="28" y="18" width="44" height="10" rx="3" fill="#9d174d" />
+                    <ellipse cx="50" cy="75" rx="40" ry="42" fill="#ec4899" />
+                    <ellipse cx="35" cy="52" rx="10" ry="16" fill="rgba(255,255,255,0.2)"
                         transform="rotate(-15,35,52)" />
-                    <ellipse cx="50" cy="16" rx="20" ry="5" fill="rgba(220,180,255,0.35)" />
-                    <ellipse cx="50" cy="114" rx="18" ry="5" fill="#2d0040" />
+                    <ellipse cx="50" cy="16" rx="20" ry="5" fill="rgba(251,207,232,0.3)" />
+                    <ellipse cx="50" cy="114" rx="18" ry="5" fill="#831843" />
                 </svg>
-                <span class="pot-tick">✔</span>
-                <span class="pot-label">Purple</span>
+                <span class="pot-check">✔</span>
+                <span class="pot-tag">Pink</span>
+            </div>
+
+            <!-- Divider + Reset -->
+            <div class="divider"></div>
+            <div class="palette-reset-btn" onclick="resetAll()">
+                <div class="icon-ring">↺</div>
+                <span class="btn-txt">Reset</span>
             </div>
 
         </div>
     </div>
 
+    <!-- ─────────────────────────── SCRIPT ─────────────────── -->
     <script>
-
-        let selectedColor = "red"
-
-        // Track color level per bot (0 to 1, increments by 0.2 per click)
+        /* ── State ─────────────────────────────────────────── */
+        let selectedColor = 'red'
+        let selectedColorName = 'Red'
+        let totalSplashes = 0
+        const BOT_COUNT = 5
+        const MAX_LEVEL = 5   // 5 sprays = 100%
         const botLevels = [0, 0, 0, 0, 0]
+        // Each entry: [{ color, seed }, ...] — full spray history per bot
+        const botHistory = [[], [], [], [], []]
 
-        /* ---- Color pot selection ---- */
-        document.querySelectorAll(".pot-wrapper").forEach(pot => {
-            pot.addEventListener("click", (e) => {
+        const botNames = ['ChatGPT', 'Gemini', 'Claude', 'Copilot', 'Meta AI']
+
+            /* ── Particles init ─────────────────────────────────── */
+            ; (function initParticles() {
+                const wrap = document.getElementById('particles')
+                const colors = ['#7c3aed', '#06b6d4', '#f59e0b', '#ec4899', '#22c55e', '#ef4444']
+                for (let i = 0; i < 36; i++) {
+                    const el = document.createElement('div')
+                    el.className = 'particle'
+                    const size = Math.random() * 5 + 2
+                    el.style.cssText = `
+                width:${size}px; height:${size}px;
+                left:${Math.random() * 100}%;
+                top:${Math.random() * 100}%;
+                background:${colors[i % colors.length]};
+                --dur:${(Math.random() * 6 + 5).toFixed(1)}s;
+                --delay:${(Math.random() * 8).toFixed(1)}s;
+            `
+                    wrap.appendChild(el)
+                }
+            })()
+
+        /* ── Fullscreen canvas (decorative spray trails) ───── */
+        const fxCanvas = document.getElementById('splashCanvas')
+        const fxCtx = fxCanvas.getContext('2d')
+        function resizeFxCanvas() {
+            fxCanvas.width = window.innerWidth
+            fxCanvas.height = window.innerHeight
+        }
+        resizeFxCanvas()
+        window.addEventListener('resize', resizeFxCanvas)
+
+        /* ── Pot selection ──────────────────────────────────── */
+        document.querySelectorAll('.color-pot').forEach(pot => {
+            pot.addEventListener('click', e => {
                 e.stopPropagation()
-                document.querySelectorAll(".pot-wrapper").forEach(p => p.classList.remove("selected"))
-                pot.classList.add("selected")
+                document.querySelectorAll('.color-pot').forEach(p => p.classList.remove('active'))
+                pot.classList.add('active')
                 selectedColor = pot.dataset.color
+                selectedColorName = pot.dataset.name
                 document.body.style.cursor = "url('sprayer.png') 4 60, crosshair"
             })
         })
 
-        /* ---- Paint color onto bot canvas ---- */
-        function paintBot(index, color) {
-            const canvas = document.getElementById("canvas" + index)
-            const ctx = canvas.getContext("2d")
-
-            // Convert color name to rgba with 0.2 opacity
-            ctx.globalAlpha = 0.2
-            ctx.fillStyle = color
-
-            // Draw an ellipse shape roughly matching bot body
-            ctx.beginPath()
-            ctx.ellipse(
-                canvas.width / 2,
-                canvas.height / 2 + 10,
-                canvas.width * 0.42,
-                canvas.height * 0.44,
-                0, 0, Math.PI * 2
-            )
-            ctx.fill()
-
-            // Increment level and update canvas opacity (CSS)
-            botLevels[index] = Math.min(1, botLevels[index] + 0.2)
-            canvas.style.opacity = botLevels[index]
-
-            // Reset at max
-            if (botLevels[index] >= 1) {
-                setTimeout(() => {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height)
-                    botLevels[index] = 0
-                    canvas.style.opacity = 0
-                }, 1500)
+        /* ── Seeded pseudo-random (mulberry32) ───────────────── */
+        function seededRand(seed) {
+            return function () {
+                seed |= 0; seed = seed + 0x6D2B79F5 | 0
+                let t = Math.imul(seed ^ seed >>> 15, 1 | seed)
+                t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t
+                return ((t ^ t >>> 14) >>> 0) / 4294967296
             }
         }
 
-        /* ---- Check if click hits a bot ---- */
-        document.addEventListener("click", (e) => {
-            // Don't spray if clicked on a pot
-            if (e.target.closest(".pot-wrapper")) return
+        /* ── Draw one spray layer onto ctx ────────────────────── */
+        function drawSprayLayer(ctx, w, h, color, seed, alpha) {
+            const rand = seededRand(seed)
+            ctx.globalAlpha = alpha
+            ctx.fillStyle = color
+            for (let i = 0; i < 10; i++) {
+                ctx.beginPath()
+                const rx = rand() * w * 0.4 + w * 0.08
+                const ry = rand() * h * 0.25 + h * 0.08
+                const cx = w * (0.1 + rand() * 0.8)
+                const cy = h * (0.1 + rand() * 0.8)
+                ctx.ellipse(cx, cy, rx, ry, rand() * Math.PI, 0, Math.PI * 2)
+                ctx.fill()
+            }
+        }
 
-            // Check if click is on a bot
+        /* ── Paint bot ──────────────────────────────────────── */
+        function paintBot(idx, color) {
+            const canvas = document.getElementById(`canvas${idx}`)
+            const ctx = canvas.getContext('2d')
+            const img = canvas.previousElementSibling
+
+            // Guard: max 5 sprays
+            if (botLevels[idx] >= MAX_LEVEL) return
+
+            // Record this spray with a unique seed for reproducible splatter
+            const seed = Math.floor(Math.random() * 0xFFFFFF) + 1
+            botHistory[idx].push({ color, seed })
+            botLevels[idx]++
+            const lvl = botLevels[idx]
+
+            // ── Clear & replay all sprays in history ────────────────
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            botHistory[idx].forEach((entry, i) => {
+                const alpha = 0.3 + i * 0.06  // each layer slightly more opaque
+                drawSprayLayer(ctx, canvas.width, canvas.height, entry.color, entry.seed, alpha)
+            })
+
+            // ── Canvas opacity ramps from 20% → 100% ──────────────
+            canvas.style.opacity = (lvl / MAX_LEVEL) * 1.0
+
+            // ── Glow on the bot image (blends last color) ──────────
+            const tintColor = resolveColor(color)
+            if (img && img.tagName === 'IMG') {
+                img.style.filter = `drop-shadow(0 8px 20px ${tintColor}99) drop-shadow(0 0 ${lvl * 6}px ${tintColor}88)`
+            }
+
+            // ── Meter bar shows latest color ──────────────────────
+            const meter = document.getElementById(`meter${idx}`)
+            meter.style.width = (lvl / MAX_LEVEL * 100) + '%'
+            meter.style.background = `linear-gradient(90deg, ${color}, ${lighten(color)})`
+
+            // ── Fully colored? ─────────────────────────────────
+            if (lvl >= MAX_LEVEL) {
+                showToast(`🤖 ${botNames[idx]} is fully colored! 🎉`)
+                confettiBurst(document.getElementById(`bot-card-${idx}`))
+            }
+        }
+
+        /* ── Resolve named color → hex (for lighten/glow) ───── */
+        const _colorCanvas = document.createElement('canvas')
+        _colorCanvas.width = _colorCanvas.height = 1
+        const _colorCtx = _colorCanvas.getContext('2d')
+        function resolveColor(color) {
+            _colorCtx.clearRect(0, 0, 1, 1)
+            _colorCtx.fillStyle = color
+            _colorCtx.fillRect(0, 0, 1, 1)
+            const [r, g, b] = _colorCtx.getImageData(0, 0, 1, 1).data
+            return `rgb(${r},${g},${b})`
+        }
+
+        /* ── Lighten helper ─────────────────────────────────── */
+        function lighten(color) {
+            _colorCtx.clearRect(0, 0, 1, 1)
+            _colorCtx.fillStyle = color
+            _colorCtx.fillRect(0, 0, 1, 1)
+            const d = _colorCtx.getImageData(0, 0, 1, 1).data
+            const r = Math.min(255, d[0] + 80)
+            const g = Math.min(255, d[1] + 80)
+            const b = Math.min(255, d[2] + 80)
+            return `rgb(${r},${g},${b})`
+        }
+
+        /* ── Confetti burst ─────────────────────────────────── */
+        function confettiBurst(el) {
+            const rect = el.getBoundingClientRect()
+            const cx = rect.left + rect.width / 2
+            const cy = rect.top + rect.height / 2
+            const clrs = ['#f59e0b', '#ec4899', '#22c55e', '#3b82f6', '#7c3aed', '#ef4444']
+            for (let i = 0; i < 18; i++) {
+                const bit = document.createElement('div')
+                bit.className = 'confetti-bit'
+                const angle = (i / 18) * 360
+                const dist = 50 + Math.random() * 80
+                bit.style.cssText = `
+                left:${cx}px; top:${cy}px;
+                background:${clrs[i % clrs.length]};
+                --tx:${Math.cos(angle * Math.PI / 180) * dist}px;
+                --ty:${Math.sin(angle * Math.PI / 180) * dist}px;
+                --tr:${Math.random() * 360}deg;
+                --t:${(0.8 + Math.random() * 0.6).toFixed(2)}s;
+            `
+                document.body.appendChild(bit)
+                setTimeout(() => bit.remove(), 1500)
+            }
+        }
+
+        /* ── Spray dot ──────────────────────────────────────── */
+        function sprayDot(x, y, color) {
+            const dot = document.createElement('div')
+            dot.className = 'splash-dot'
+            dot.style.cssText = `
+            left:${x - 14}px; top:${y - 14}px;
+            background:${color};
+            box-shadow: 0 0 14px 4px ${color}66;
+        `
+            document.body.appendChild(dot)
+            setTimeout(() => dot.remove(), 800)
+
+            // Mini FX trail on canvas
+            fxCtx.beginPath()
+            fxCtx.arc(x, y, 6, 0, Math.PI * 2)
+            fxCtx.fillStyle = color + '55'
+            fxCtx.fill()
+            setTimeout(() => {
+                fxCtx.clearRect(x - 20, y - 20, 40, 40)
+            }, 500)
+        }
+
+        /* ── Toast ──────────────────────────────────────────── */
+        let toastTimer = null
+        function showToast(msg) {
+            const t = document.getElementById('toast')
+            t.innerHTML = msg
+            t.classList.add('show')
+            clearTimeout(toastTimer)
+            toastTimer = setTimeout(() => t.classList.remove('show'), 2600)
+        }
+
+        /* ── Score ──────────────────────────────────────────── */
+        function addScore() {
+            totalSplashes++
+            document.getElementById('scoreVal').textContent = totalSplashes
+        }
+
+        /* ── Reset all bots ─────────────────────────────────── */
+        function resetAll() {
+            for (let i = 0; i < BOT_COUNT; i++) {
+                const canvas = document.getElementById(`canvas${i}`)
+                const ctx = canvas.getContext('2d')
+                ctx.clearRect(0, 0, canvas.width, canvas.height)
+                canvas.style.opacity = 0
+                botLevels[i] = 0
+                botHistory[i] = []  // clear spray history
+                const meter = document.getElementById(`meter${i}`)
+                meter.style.width = '0%'
+                meter.style.background = 'linear-gradient(90deg, var(--primary), var(--secondary))'
+                // Reset bot image glow
+                const img = document.querySelector(`#bot${i} img`)
+                if (img) img.style.filter = 'drop-shadow(0 8px 20px rgba(124, 58, 237, 0.5))'
+            }
+            totalSplashes = 0
+            document.getElementById('scoreVal').textContent = '0'
+            fxCtx.clearRect(0, 0, fxCanvas.width, fxCanvas.height)
+            showToast('✨ Bots reset — spray again!')
+        }
+
+        /* ── Click handler ──────────────────────────────────── */
+        document.addEventListener('click', e => {
+            if (e.target.closest('.color-pot')) return
+            if (e.target.closest('.palette-reset-btn')) return
+            if (e.target.closest('.btn-nav')) return
+            if (e.target.closest('.btn-hero')) return
+
+            const cx = e.clientX
+            const cy = e.clientY
+
+            // Did we hit a bot?
             let hitBot = false
-            for (let i = 0; i < 5; i++) {
-                const botEl = document.getElementById("bot" + i)
-                const rect = botEl.getBoundingClientRect()
-                if (
-                    e.clientX >= rect.left && e.clientX <= rect.right &&
-                    e.clientY >= rect.top && e.clientY <= rect.bottom
-                ) {
+            for (let i = 0; i < BOT_COUNT; i++) {
+                const el = document.getElementById(`bot${i}`)
+                const rect = el.getBoundingClientRect()
+                // expand hit area slightly
+                if (cx >= rect.left - 10 && cx <= rect.right + 10 &&
+                    cy >= rect.top - 10 && cy <= rect.bottom + 10) {
                     paintBot(i, selectedColor)
+                    addScore()
                     hitBot = true
+
+                    // celebrate message on first few hits
+                    if (botLevels[i] === 1) showToast(`🎨 Spraying ${selectedColorName} on ${botNames[i]}!`)
                     break
                 }
             }
 
-            // Always show spray splash at click position
-            let splash = document.createElement("div")
-            splash.className = "splash"
-            splash.style.background = selectedColor
-            splash.style.left = e.pageX + "px"
-            splash.style.top = e.pageY + "px"
-            document.body.appendChild(splash)
-            setTimeout(() => splash.remove(), 700)
+            // Always spray dot
+            sprayDot(cx, cy, selectedColor)
         })
 
-    </script>
+        /* ── Keyboard shortcut: 'R' = reset ────────────────── */
+        document.addEventListener('keydown', e => {
+            if (e.key === 'r' || e.key === 'R') resetAll()
+        })
 
+        /* ── Initial toast ──────────────────────────────────── */
+        setTimeout(() => showToast('🌸 Select a color pot & spray the bots!'), 800)
+
+    </script>
 </body>
 
 </html>
